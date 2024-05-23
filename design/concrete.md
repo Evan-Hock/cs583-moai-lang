@@ -204,3 +204,13 @@ Yields the shape of an array, which is an array consisting of the sizes of each 
 ### ndim
 
 Yields the rank of an array, which is the number of dimensions that it has.
+
+
+## iota
+
+Yields a one-dimensional array of integers from 0 up to (but not including) its argument.
+
+
+## reverse
+
+Reverses an array.
