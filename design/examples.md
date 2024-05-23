@@ -63,21 +63,22 @@ Moai will not have any "if" statements.
 
 Matrix multiplication is carried out via the `.` operator in J, which is infuriatingly whitespace sensitive.
 
-The table shows how it works in J.
-
-| `M =: 1 + i.2 2` | `N =: 2 3 $ 1 + |.i.6` | `M +/ . * N`  |
-| ---------------- | ---------------------- | -----------   |
-| 1 2              | 6 5 4                  | 12  9  6      |
-| 3 4              | 3 2 1                  | 30 23 16      |
-
+`M +/ . * N` will yield the multiplication of M and N.
 
 ```
+M =: i.2 2
+N =: 2 3 $ 1 + |.i.6
+echo M +/ . * N   NB. The spaces are not optional
+```
+
+Here is the Moai version.
+```
 def M.
-    [2, 2] of iota(4)
+    1 + iota(4) as [2, 2]
 
 
 def N.
-    [2, 3] of reverse(iota(6))
+    reverse(1 + iota(6)) as [2, 3]
 
 
 def main.
