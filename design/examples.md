@@ -20,7 +20,7 @@ This is a quippy J function that is frequently used to demonstrate the capabilit
 
 J
 ```
-avg =: +/ % #   NB. The average is the sum (+/) over (%) the number of elements (#)
+avg =: +/ % #    NB. The average is the sum (+/) over (%) the number of elements (#)
 ``` 
 
 Moai
@@ -63,12 +63,33 @@ Moai will not have any "if" statements.
 
 Matrix multiplication is carried out via the `.` operator in J, which is infuriatingly whitespace sensitive.
 
-`M +/ . * N` will yield the multiplication of M and N.
+In J, `M +/ . * N` will yield the multiplication of M and N.
 
 ```
-M =: i.2 2
+M =: 1 + i.2 2
 N =: 2 3 $ 1 + |.i.6
-echo M +/ . * N   NB. The spaces are not optional
+echo M +/ . * N    NB. The spaces are not optional
+```
+
+Here, M is
+
+```
+1 2
+3 4
+```
+
+and N is
+
+```
+6 5 4
+3 2 1
+```
+
+their matrix product is
+
+```
+12  9  6
+30 23 16
 ```
 
 Here is the Moai version.
