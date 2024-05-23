@@ -72,11 +72,11 @@ The table shows how it works in J.
 
 
 ```
-const M.
+def M.
     [2, 2] of iota(4)
 
 
-const N.
+def N.
     [2, 3] of reverse(iota(6))
 
 
@@ -108,7 +108,7 @@ This iterates the function `1&+@(1&%)` until its value stops changing (as define
 
 Moai
 ```
-const phi.
+def phi.
     iterate x from 1 until x =~= phi_step(x). # Approx equals
         phi_step(x)
 
