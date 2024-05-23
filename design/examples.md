@@ -94,3 +94,52 @@ Will output
 
 
 The @ symbol is chosen by precedent of Python, the greatest programming language.
+
+
+## Golden Ratio
+
+J
+```
+phi =: (1&+@(1&%)^:_) 1
+```
+
+This iterates the function `1&+@(1&%)` until its value stops changing (as defined by a certain tolerance).
+
+
+Moai
+```
+const phi.
+    iterate x from 1 until x =~= phi_step(x). # Approx equals
+        phi_step(x)
+
+
+def phi_step(x).
+    1 + (1/x)
+```
+
+
+## Scalar Pervasion
+
+As in J, scalars are automatically lifted by certain primitives to apply over their arguments.
+
+J
+```
+1 + 1 2 3
+```
+
+yields
+
+```
+2 3 4
+```
+
+Moai
+```
+1 + [1, 2, 3]
+```
+
+yields
+
+```
+[2, 3, 4]
+```
