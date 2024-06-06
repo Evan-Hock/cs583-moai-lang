@@ -214,3 +214,8 @@ Yields a one-dimensional array of integers from 0 up to (but not including) its 
 ### reverse
 
 Reverses the major cells in an array.
+
+
+### abs
+
+Computes the magnitude of a number.

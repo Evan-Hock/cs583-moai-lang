@@ -26,7 +26,7 @@ avg =: +/ % #    NB. The average is the sum (+/) over (%) the number of elements
 Moai
 ```
 def avg(xs).
-  foldl xs from 0 with (+) / len(xs)
+  (foldl xs from 0 with (+)) / len(xs)
 ```
 
 
@@ -131,7 +131,7 @@ This iterates the function `1&+@(1&%)` until its value stops changing (as define
 Moai
 ```
 def phi.
-    iterate x from 1 until x =~= phi_step(x). # Approx equals
+    iterate x from 1 until abs(x - phi_step(x)) <= 0.001. # Approx equals
         phi_step(x)
 
 
