@@ -193,7 +193,7 @@ Boolean negation.
 
 ### len
 
-Retrieve the number of individual elements (cells) in an array.
+Retrieve the number of individual 0-cells in an array.
 
 
 ### shape
@@ -213,4 +213,4 @@ Yields a one-dimensional array of integers from 0 up to (but not including) its 
 
 ### reverse
 
-Reverses an array.
+Reverses the major cells in an array.
