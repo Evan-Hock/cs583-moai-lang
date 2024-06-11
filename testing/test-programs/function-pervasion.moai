@@ -1,0 +1,2 @@
+def force_negative(xs).
+    neg(abs(xs))
