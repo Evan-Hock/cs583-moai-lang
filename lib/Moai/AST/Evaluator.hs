@@ -6,6 +6,7 @@ module Moai.AST.Evaluator
     , MoaiError(..)
     , MoaiException
     , MoaiEvalMonad
+    , MoaiEnvironment
     ) where
 
 
@@ -15,10 +16,10 @@ import Control.Monad.Trans.Class
 import Control.Monad.Trans.Reader
 import Data.Array
 import Data.Foldable
-import Data.HashMap.Strict (HashMap, (!?))
+import Data.HashMap.Strict (HashMap)
 import qualified Data.HashMap.Strict as HashMap
 import Data.List as List
-import Data.List.NonEmpty (NonEmpty, (:|), (<|))
+import Data.List.NonEmpty (NonEmpty, (:|))
 import qualified Data.List.NonEmpty as NonEmpty
 import Data.Ord
 import Moai.AST
@@ -49,12 +50,16 @@ data MoaiError
     | IndexError -- Out-of-bounds index
     | ArgumentError -- Too many arguments to function
     | PatternFailure -- Failure to bind a pattern
+    | ReferenceError -- Failed to find a name
 
 
 type MoaiException = (MoaiError, String)
 
 
-type MoaiEvalMonad = ReaderT (HashMap Name MoaiData) (Except MoaiException) MoaiData
+type MoaiEnvironment = HashMap Name MoaiData
+
+
+type MoaiEvalMonad = ReaderT MoaiEnvironment (Except MoaiException) MoaiData
 
 
 data FoldDirection
@@ -62,8 +67,16 @@ data FoldDirection
     | Right
 
 
-eval :: Expr -> Except MoaiException MoaiData
-eval expr = runReaderT (eval' expr) HashMap.empty
+registerDefinitions :: [Definition] -> MoaiEnvironment
+registerDefinitions = foldl' registerDefinition HashMap.empty
+
+
+registerDefinition :: MoaiEnvironment -> Definition -> MoaiEnvironment
+registerDefinition env (name, params, body) = HashMap.insert name (Verb params body) env
+
+
+eval :: MoaiEnvironment -> AST -> Except MoaiException MoaiData
+eval env expr = runReaderT (eval' expr) env
 
 
 eval' :: Expr -> MoaiEvalMonad
@@ -77,6 +90,57 @@ eval' (Lambda params expr) = evalLambda params expr
 eval' (Iterate name init halter body) = evalIterate name init halter body
 eval' (Foldl expr fromExpr fexpr) = evalFold Left expr fromExpr fexpr
 eval' (Foldr expr fromExpr fexpr) = evalFold Right expr fromExpr fexpr
+eval' (Term term) = evalTerm term
+
+
+evalTerm :: Term -> MoaiEvalMonad
+evalTerm (Id name) = lookupName name
+evalTerm (Lit lit) = evalLit lit
+
+
+lookupName :: Name -> MoaiEvalMonad
+lookupName name = do
+    mval <- asks (HashMap.lookup name)
+    case mval of
+        Nothing -> lift $ throwE (ReferenceError, "Unknown name '" ++ name ++ "'")
+        Just val ->
+            case val of
+                -- For right now these will just function as macros
+                Verb [] expr -> eval' expr
+                _ -> return val
+
+
+evalLit :: Literal -> MoaiEvalMonad
+evalLit (Scalar n) = evalScalar n
+evalLit (Array values) = evalList values
+evalLit (Matrix values) = evalMatrix values
+
+
+evalScalar :: Double -> MoaiEvalMonad
+evalScalar = return . Noun . moaiScalar
+
+
+evalList :: [Double] -> MoaiEvalMonad
+evalList list = return $ Noun MoaiArray
+    { moaiarray_shape=[len]
+    , moaiarray_data=listArray (0, len - 1) list
+    }
+  where
+    len = length list
+
+
+evalMatrix :: [[Double]] -> MoaiEvalMonad
+evalMatrix matrix = return $ Noun MoaiArray
+    { moaiarray_shape=shape
+    , moaiarray_data=listArray (0, product shape - 1) . concatMap (fill ncols) $ matrix
+    }
+  where
+    ncols = maximum (map length matrix)
+    shape = [length matrix, ncols]
+
+
+fill :: Int -> [Double] -> [Double]
+fill n xs = xs ++ replicate (n - length xs) 0
 
 
 evalFold :: FoldDirection -> Expr -> Expr -> Expr
@@ -231,7 +295,7 @@ bindAndEval bindings expr =
         eval' expr
 
 
-bindEnvironment :: [(Name, MoaiData)] -> HashMap Name MoaiData -> HashMap Name MoaiData
+bindEnvironment :: [(Name, MoaiData)] -> MoaiEnvironment -> MoaiEnvironment
 bindEnvironment newBindings bindings = foldl' (uncurry HashMap.insert) bindings newBindings
 
 

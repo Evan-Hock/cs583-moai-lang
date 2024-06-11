@@ -1,7 +1,7 @@
 module Moai.AST
     ( AST
     , Name
-    , Definition(..)
+    , Definition
     , Body(..)
     , SeqExpr(..)
     , Expr(..)
@@ -19,12 +19,12 @@ module Moai.AST
 
 import Data.List.NonEmpty (NonEmpty)
 
-type AST = [Definition]
+type AST = Expr
 
 type Name = String
 
-data Definition
-    = Def Name Params Expr
+type Definition
+    = (Name, Params, Expr)
 
 data Expr
     = UnOp UnOperator Expr -- Application of a builtin function. These are special-cased by the compiler, at least for now.
@@ -39,9 +39,11 @@ data Expr
     | Iterate Name Expr Expr Expr -- Iteration expressions, analogous to Haskell's "until" function, or APL's "power" operator when passed a function as its right argument.
     | Term Term
 
-type Params = [Pattern]
+type Params
+    = [Pattern]
 
-type NonEmptyParams = NonEmpty Pattern
+type NonEmptyParams
+    = NonEmpty Pattern
 
 data BinOperator
     = Add -- +
