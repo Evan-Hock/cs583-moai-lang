@@ -1,19 +1,6 @@
 # Moai Examples
 
 
-## Hello, World
-
-J
-```
-echo 'Hello, world!'
-```
-
-Moai
-```
-puts "Hello, world!"
-```
-
-
 ## Average
 
 This is a quippy J function that is frequently used to demonstrate the capabilities of the language to inquisitive neophytes.
@@ -44,78 +31,19 @@ Then, it executes the functions `-&2` and `-&1` on the argument, which are both 
 
 The results of these are recurred upon, as `$:` is the recursion primitive. Finally, they are summed together.
 
-Taken from the [J wiki article](https://code.jsoftware.com/wiki/Essays/Fibonacci_Sequence) on the matter. :)
+Taken from the [J wiki article](https://code.jsoftware.com/wiki/Essays/Fibonacci_Sequence) on the matter.
 
 
 Moai
 ```
 def fib(n).
   case n < 1.
-    true. n
-    false. fib(n - 2) + fib(n - 1)
+    1. n
+    0. fib(n - 2) + fib(n - 1)
 ```
 
 
 Moai will not have any "if" statements.
-
-
-## Matrix Multiplication
-
-Matrix multiplication is carried out via the `.` operator in J, which is infuriatingly whitespace sensitive.
-
-In J, `M +/ . * N` will yield the multiplication of M and N.
-
-```
-M =: 1 + i.2 2
-N =: 2 3 $ 1 + |.i.6
-echo M +/ . * N    NB. The spaces are not optional
-```
-
-Here, M is
-
-```
-1 2
-3 4
-```
-
-and N is
-
-```
-6 5 4
-3 2 1
-```
-
-their matrix product is
-
-```
-12  9  6
-30 23 16
-```
-
-Here is the Moai version.
-```
-def M.
-    1 + iota(4) as [2, 2]
-
-
-def N.
-    reverse(1 + iota(6)) as [2, 3]
-
-
-def main.
-    print(M @ N).
-```
-
-
-Will output
-```
-[ 12, 9, 6
-; 30, 23, 16
-]
-```
-
-
-The @ symbol is chosen by precedent of Python, the greatest programming language.
 
 
 ## Golden Ratio
@@ -163,5 +91,5 @@ Moai
 yields
 
 ```
-[2, 3, 4]
+2 3 4
 ```

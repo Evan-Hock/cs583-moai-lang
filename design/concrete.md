@@ -20,20 +20,7 @@ The toplevel consists of a list of these definitions. The argument list may be e
 may also be present and have zero parameters contained within. The semantics for an argument list with zero
 parameters and an absent argument list are the same.
 
-After registering the definitions, the program will begin from the entrypoint, which is a function called "main".
-`main` may have zero or more arguments. In the event that it has more than zero arguments,
-its first argument will be initialized with an array containing the following values.
-
-1. The program name, as invoked from the command-line
-2. The command line arguments, which consist of the rest of the array.
-
-
-The other arguments can be present, but they will never be used.
-
-*Stretch goal.*
-
-It may be more desirable to introduce variadic functions into the language, and call main with the
-list of command line arguments instead of just the first argument with an array of arguments.
+After processing the definitions, the language will drop into the REPL, with all of the loaded definitions available.
 
 
 ## Expressions
@@ -59,11 +46,9 @@ where
 <expr> <op> <expr>
 ```
 
-All binary operators are left-associative.
+All binary operators are right-associative.
 
 All binary operators have the same precedence, due to array language precedent.
-
-There are no unary operators.
 
 
 3. "Case" expressions
@@ -82,7 +67,7 @@ where
 4. "For" expressions
 
 ```
-"for" <pattern> "in" <expr> "." <expr>
+"for" <name> "in" <expr> "." <expr>
 ```
 
 
@@ -123,19 +108,19 @@ is the initial accumulator, and the third argument is the folding function.
 8. "iterate" expressions
 
 ```
-"iterate" <pattern> "from" <expr> "until" <expr> "." <expr>
+"iterate" <name> "from" <expr> "until" <expr> "." <expr>
 ```
 
 The semantics of this are very similar to Haskell's `until` function.
 
 These expressions consist of three portions.
 
-The pattern introduces bindings that may be utilized within the rightmost two expressions.
+The name introduces a binding that may be utilized within the rightmost two expressions.
 
-The first expression is a value with which to initialize the pattern. It is matched against the pattern and bound to it.
+The first expression is a value with which to initialize the binding.
 
-The expression after "until" is used to indicate whether the iteration should halt. The bindings introduced by the pattern are bound here. If the expression evaluates to a truthy value based on the
-current value, the iteration is to halt.
+The expression after "until" is used to indicate whether the iteration should halt. The binding in the first clause is bound here. If the expression evaluates to a truthy value
+based on the current value, the iteration is to halt.
 
 The final expression is used to indicate what the value for the next iteration should be.
 
@@ -156,10 +141,9 @@ Sections are available, and function precisely as they do in Haskell.
 The following literals are supported.
 
 * Integer literals
-* Floating-point literals
+* Floating point literals
 * Array literals, with the conventional `[e1, e2, ..., eN]` syntax.
-* Boolean literals, with the literals `true` and `false`.
-* String literals, with double-quotes.
+* Matrix literals, with the slightly less conventional `[e11, e12, ..., e1N; e21, e22, ... e2N; ...; eM1, eM2, ..., eMN]
 
 
 11. Types
@@ -170,10 +154,6 @@ The language shall be dynamically typed. A more advanced type system is not plan
 12. Builtins
 
 The language shall come with a small assortment of builtins.
-
-### puts
-
-Prints a string to the console.
 
 
 ### identity

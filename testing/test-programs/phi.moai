@@ -1,0 +1,6 @@
+def phi.
+    iterate x from 1 until abs(x - phi_step(x)) <= 0.001. # Approx equals
+        phi_step(x)
+
+def phi_step(x).
+    1 + (1/x)

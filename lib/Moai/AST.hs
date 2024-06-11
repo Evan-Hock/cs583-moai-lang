@@ -1,17 +1,23 @@
 module Moai.AST
     ( AST
+    , Name
     , Definition(..)
     , Body(..)
     , SeqExpr(..)
     , Expr(..)
-    , PrimaryExpr(..)
-    , Value(..)
+    , Params
+    , Alternatives
+    , NonEmptyParams
     , BinOperator(..)
-    , Possibility(..)
+    , UnOperator(..)
     , Pattern(..)
+    , SimplePattern(..)
+    , Term(..)
+    , Literal(..)
     ) where
 
-infixr 9 :>>
+
+import Data.List.NonEmpty (NonEmpty)
 
 type AST = [Definition]
 
@@ -20,33 +26,66 @@ type Name = String
 data Definition
     = Def Name Params Expr
 
--- Kind of big
 data Expr
-    = BinOp BinOperator (Maybe Expr) (Maybe Expr)
-    | App Expr (NonEmpty Expr)
-    | Case Expr [Possibility]
-    | For Expr Name Expr
-    | Let Pattern Expr Expr
-    | Lambda Params Expr
-    | Foldl Expr (Maybe Expr) Expr
-    | Foldr Expr (Maybe Expr) Expr
-    | Product Expr Expr
-    | Expr :>> Expr
+    = UnOp UnOperator Expr -- Application of a builtin function. These are special-cased by the compiler, at least for now.
+    | BinOp BinOperator (Maybe Expr) (Maybe Expr) -- Application of a binary function, or an operator section.
+    | App Expr (NonEmpty Expr) -- Application of a function to a NONEMPTY list of arguments.
+    | Case Expr Alternatives -- Pattern-matching case expressions.
+    | For Expr Name Expr -- For loops (map expressions).
+    | Let Pattern Expr Expr -- Local bindings.
+    | Lambda NonEmptyParams Expr
+    | Foldl Expr (Maybe Expr) Expr -- Left-associative fold over a list of elements, with an optional starting argument applied to the far left.
+    | Foldr Expr (Maybe Expr) Expr -- Right-associative fold over a list of elements, with an optional starting argument applied to the far right.
+    | Iterate Name Expr Expr Expr -- Iteration expressions, analogous to Haskell's "until" function, or APL's "power" operator when passed a function as its right argument.
+    | Term Term
 
-type Params = [Name]
+type Params = [Pattern]
+
+type NonEmptyParams = NonEmpty Pattern
 
 data BinOperator
-    = Plus -- +
-    | Minus -- -
-    | Times -- *
-    | Divide -- /
-    | Modulus -- mod
-    | Reshape
-    | From
+    = Add -- +
+    | Sub -- -
+    | Mul -- *
+    | Div -- /
+    | Reshape -- as
+    | From -- at
+    | Eq -- ==
+    | Neq -- /=
+    | Gt -- >
+    | Gte -- >=
+    | Lt -- <
+    | Lte -- <=
 
-data Possibility
-    = Possibility Pattern Expr
+data UnOperator
+    = Identity -- identity()
+    | Neg -- neg()
+    | Not --  not()
+    | Len -- len()
+    | Shape -- shape()
+    | Ndim -- ndim()
+    | Iota -- iota()
+    | Reverse -- reverse()
+    | Abs -- abs()
+
+type Alternatives
+    = NonEmpty (Pattern, Expr)
 
 data Pattern
+    = Base SimplePattern
+    | Array [SimplePattern] -- [1, 2, 3] or [x, y, z]
+    | Matrix Int Int [SimplePattern] -- [1, 2, 3; x, y, z] -> Matrix 2 3 [Num 1, Num 2, Num 3, Var "x", Var "y", Var "z"]
+    | Rest [SimplePattern] (Maybe Name) -- [x, ..xs] or [x, y, ..]
+
+data SimplePattern
     = Var Name
-    | Cons Name [Pattern]
+    | Num Double
+
+data Term
+    = Id Name
+    | Lit Literal
+
+data Literal
+    = Scalar Double -- e.g. 1
+    | Array [Double] -- e.g. [1, 2, 3]
+    | Matrix [[Double]] -- e.g. [1, 2; 3, 4]. If the matrix is non-rectangular, it will be filled with 0s.

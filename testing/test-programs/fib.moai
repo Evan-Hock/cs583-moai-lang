@@ -1,0 +1,4 @@
+def fib(n).
+    case n <= 1.
+        1. n
+        0. fib(n - 2) + fib(n - 1)

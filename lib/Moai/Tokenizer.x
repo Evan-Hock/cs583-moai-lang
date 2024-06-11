@@ -48,13 +48,22 @@ tokens :-
     until { basic Until }
     with { basic With }
 
+    identity { basic Identity }
+    neg { basic Neg }
+    not { basic Not }
+    len { basic Len }
+    shape { basic Shape }
+    ndim { basic Ndim }
+    iota { basic Iota }
+    reverse { basic Reverse }
+    abs { basic Abs }
+
     @float { float }
     @integer { integer }
     @boolean { boolean }
 
     @identifier { identifier }
 
-    \".*\"  { stringT }
     "." { basic Period }
     "," { basic Comma }
     ";" { basic Semicolon }
@@ -67,6 +76,7 @@ tokens :-
     "-" { basic Hyphen }
     "*" { basic Star }
     "/" { basic Slash }
+    "%" { basic Percent }
     "==" { basic Eq }
     "/=" { basic Neq }
     "<" { basic Lt }
@@ -81,11 +91,10 @@ data TokenCategory
     = As
     | At
     | Bind
-    | Boolean Bool
     | Case
     | Comma
     | Cross
-    | Float Double
+    | Number Double
     | Eq
     | Neq
     | Foldl
@@ -94,7 +103,6 @@ data TokenCategory
     | From
     | Gt
     | Gte
-    | Integer Int
     | Lambda
     | LBrace
     | LParen
@@ -104,10 +112,10 @@ data TokenCategory
     | RParen
     | Iterate
     | In
+    | Percent
     | Period
     | Slash
     | Star
-    | String StrictByteString
     | Until
     | With
     deriving

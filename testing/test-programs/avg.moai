@@ -1,0 +1,2 @@
+def avg(xs).
+    (foldl xs from 0 with (+)) / len(xs)

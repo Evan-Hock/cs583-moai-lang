@@ -1,0 +1,5 @@
+def M.
+    1 + iota(4) as [2, 2]
+
+def N.
+    reverse(1 + iota(6)) as [2, 3]
