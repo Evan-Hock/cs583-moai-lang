@@ -304,7 +304,7 @@ evalApp f args = do
     f' <- eval' f
     case f' of
         Verb params body -> app params args body
-        _ -> throwE (TypeError, "Attempt to apply to non-function")
+        _ -> lift $ throwE (TypeError, "Attempt to apply to non-function")
 
 
 app :: Params -> NonEmpty Expr -> Expr -> MoaiEvalMonad

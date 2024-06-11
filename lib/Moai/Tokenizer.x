@@ -136,6 +136,10 @@ instance Functor EofMarked where
 
 
 data Token = Token (Maybe Annotation) TokenCategory
+    deriving
+        ( Eq
+        , Show
+        )
 
 
 data Annotation = Annotation
@@ -143,6 +147,10 @@ data Annotation = Annotation
     , col :: Int
     , str :: StrictByteString
     }
+    deriving
+        ( Eq
+        , Show
+        )
 
 
 data AlexUserState = AlexUserState
@@ -192,7 +200,7 @@ dedent len = do
 
 
 handleIndentation :: AlexAction Result
-handleIndentation (AlexPn _ line col), _, str, _) len = do
+handleIndentation (AlexPn _ line col, _, str, _) len = do
     ust <- alexGetUserState
     case compare len ust.indentDepth of
         EQ -> ignore
