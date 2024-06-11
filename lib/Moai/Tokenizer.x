@@ -166,7 +166,7 @@ indent :: Int64 -> Alex Result
 indent len = do
     ust <- alexGetUserState
     alexSetUserState AlexUserState
-        { indentStack = len - ust.indentDepth : ust.indentStack
+        { indentStack = len - indentDepth ust : indentStack ust
         , indentDepth = len
         }
 
@@ -176,14 +176,14 @@ dedentUntil len = go 0
   where
     go n = do
         ust <- alexGetUserState
-        if ust.indentDepth <= len then
+        if indentDepth ust <= len then
             return n
-        else case ust.indentstack of
+        else case indentstack ust of
             [] -> return n
             top : rest -> do
                 alexSetUserState AlexUserState
                     { indentStack = rest
-                    , totalIndentation = ust.indentDepth - top
+                    , totalIndentation = indentDepth ust - top
                     }
 
                 go (n + 1)
@@ -193,7 +193,7 @@ dedent :: Int64 -> Alex Result
 dedent len = do
     dedents <- dedentUntil len
     s <- alexGetUserState
-    when (s.indentDepth /= len) $
+    when (indentDepth s /= len) $
         alexError "Unexpected indentation level"
 
     proceed $ replicate dedents Dedent
@@ -202,7 +202,7 @@ dedent len = do
 handleIndentation :: AlexAction Result
 handleIndentation (AlexPn _ line col, _, str, _) len = do
     ust <- alexGetUserState
-    case compare len ust.indentDepth of
+    case compare len (indentDepth ust) of
         EQ -> ignore
         GT -> indent
         LT -> dedent
