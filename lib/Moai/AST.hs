@@ -34,8 +34,8 @@ data Expr
     | For Expr Name Expr -- For loops (map expressions).
     | Let Pattern Expr Expr -- Local bindings.
     | Lambda NonEmptyParams Expr
-    | Foldl Expr (Maybe Expr) Expr -- Left-associative fold over a list of elements, with an optional starting argument applied to the far left.
-    | Foldr Expr (Maybe Expr) Expr -- Right-associative fold over a list of elements, with an optional starting argument applied to the far right.
+    | Foldl Expr Expr Expr -- Left-associative fold over a list of elements, with an optional starting argument applied to the far left.
+    | Foldr Expr Expr Expr -- Right-associative fold over a list of elements, with an optional starting argument applied to the far right.
     | Iterate Name Expr Expr Expr -- Iteration expressions, analogous to Haskell's "until" function, or APL's "power" operator when passed a function as its right argument.
     | Term Term
 

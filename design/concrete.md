@@ -90,7 +90,7 @@ These are let bindings. Only one binding may be introduced at a time, i.e. these
 7. Fold expressions
 
 ```
-<fold-type> <expr> ["from" <expr>] "with" <expr>
+<fold-type> <expr> "from" <expr> "with" <expr>
 ```
 
 where
@@ -98,9 +98,6 @@ where
 ```
 <fold-type> ::= "foldl" | "foldr"
 ```
-
-If the middle expression is absent, the fold is assumed to be a fold over a nonempty collection. This has the
-same semantics as Haskell's `foldl1` and `foldr1` functions.
 
 The argument order for fold expressions is as follows: the first argument is the collection, the second argument
 is the initial accumulator, and the third argument is the folding function.

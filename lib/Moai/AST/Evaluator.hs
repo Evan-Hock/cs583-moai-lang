@@ -57,6 +57,11 @@ type MoaiException = (MoaiError, String)
 type MoaiEvalMonad = ReaderT (HashMap Name MoaiData) (Except MoaiException) MoaiData
 
 
+data FoldDirection
+    = Left
+    | Right
+
+
 eval :: Expr -> Except MoaiException MoaiData
 eval expr = runReaderT (eval' expr) HashMap.empty
 
@@ -70,6 +75,34 @@ eval' (For expr name body) = evalFor expr name body
 eval' (Let pat expr body) = evalLet pat expr body
 eval' (Lambda params expr) = evalLambda params expr
 eval' (Iterate name init halter body) = evalIterate name init halter body
+eval' (Foldl expr fromExpr fexpr) = evalFold Left expr fromExpr fexpr
+eval' (Foldr expr fromExpr fexpr) = evalFold Right expr fromExpr fexpr
+
+
+evalFold :: FoldDirection -> Expr -> Expr -> Expr
+evalFold dir expr fromExpr fexpr = do
+    res <- eval' expr
+    case res of
+        Noun coll -> do
+            f <- eval' fexpr
+            case f of
+                Verb params@[_, _] body -> do
+                    zero <- eval' fromExpr
+                    let v = folder params body
+                    case dir of
+                        Left -> foldM v zero (moaiarray_data coll)
+                        Right -> foldrM (flip v) zero (moaiarray_data coll)
+
+                _ -> lift $ throwE (TypeError, "Folds can only be done with binary functions")
+        
+        _ -> lift $ throwE (TypeError, "Folds must be done over a collection")
+
+
+folder :: Params -> Expr -> MoaiData -> Double -> MoaiEvalMonad
+folder params body acc x =
+    case bindParams params (acc :| [Noun (moaiScalar x)]) of
+        Nothing -> lift $ throwE (PatternFailure, "Failed to bind some patterns in a function application in a fold expression")
+        Just bindings -> bindAndEval bindings body
 
 
 evalIterate :: Name -> Expr -> Expr -> Expr
