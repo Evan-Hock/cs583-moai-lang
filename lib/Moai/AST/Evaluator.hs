@@ -19,7 +19,7 @@ import Data.Foldable
 import Data.HashMap.Strict (HashMap)
 import qualified Data.HashMap.Strict as HashMap
 import Data.List as List
-import Data.List.NonEmpty (NonEmpty, (:|))
+import Data.List.NonEmpty (NonEmpty(..))
 import qualified Data.List.NonEmpty as NonEmpty
 import Data.Ord
 import Moai.AST
@@ -111,9 +111,9 @@ lookupName name = do
 
 
 evalLit :: Literal -> MoaiEvalMonad
-evalLit (Scalar n) = evalScalar n
-evalLit (Array values) = evalList values
-evalLit (Matrix values) = evalMatrix values
+evalLit (ScalarLit n) = evalScalar n
+evalLit (ArrayLit values) = evalList values
+evalLit (MatrixLit values) = evalMatrix values
 
 
 evalScalar :: Double -> MoaiEvalMonad
@@ -199,7 +199,7 @@ evalFor :: Expr -> Name -> Expr -> MoaiEvalMonad
 evalFor expr name body = do
     res <- eval' expr
     case res of
-        Noun array ->
+        Noun array -> do
             resData <- for (moaiarray_data array) $ \ elem ->
                 bindAndEval [(name, Noun . moaiScalar $ elem)] body
 
@@ -285,8 +285,8 @@ tryBindRest pats mrest = nounBinder $ \ array -> do
 
 bindPatList :: [SimplePattern] -> MoaiArray -> Maybe [(Name, MoaiData)]
 bindPatList pats array =
-    concat <$> for (zip pats . elems . moaiarray_data $ array) $ \ (pat, data) ->
-        tryBindSimple pat . Noun . moaiScalar $ data
+    concat <$> for (zip pats . elems . moaiarray_data $ array) ( \ (pat, elem) ->
+        tryBindSimple pat . Noun . moaiScalar $ elem )
 
 
 bindAndEval :: [(Name, MoaiData)] -> Expr -> MoaiEvalMonad
@@ -327,7 +327,7 @@ bindParams params args =
 
 -- This is unimaginably jank, but it's not too far off from how J presumably does this
 evalBinOp :: BinOperator -> Expr -> Expr -> MoaiEvalMonad
-evalBinOp op Nothing Nothing = return $ dyad (BinOp op (arg "x") (arg "y")))
+evalBinOp op Nothing Nothing = return $ dyad (BinOp op (arg "x") (arg "y"))
 evalBinOp op Nothing right@(Just _) = return $ monad (BinOp op (arg "y") right)
 evalBinOp op left@(Just _) Nothing = return $ monad (BinOp op left (arg "y"))
 evalBinOp op (Just left) (Just right) = evalBinOp' op left right
@@ -552,8 +552,8 @@ moaiNot = f1 "not" $ moaiArrayMap doubleNot
 
 
 moaiScalar :: Double -> MoaiArray
-moaiScalar data =
-    MoaiArray [] (listArray (0, 0) [data])
+moaiScalar scalar =
+    MoaiArray [] (listArray (0, 0) [scalar])
 
 
 -- Yields the length of an array

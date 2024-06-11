@@ -2,8 +2,6 @@ module Moai.AST
     ( AST
     , Name
     , Definition
-    , Body(..)
-    , SeqExpr(..)
     , Expr(..)
     , Params
     , Alternatives
@@ -88,6 +86,6 @@ data Term
     | Lit Literal
 
 data Literal
-    = Scalar Double -- e.g. 1
-    | Array [Double] -- e.g. [1, 2, 3]
-    | Matrix [[Double]] -- e.g. [1, 2; 3, 4]. If the matrix is non-rectangular, it will be filled with 0s.
+    = ScalarLit Double -- e.g. 1
+    | ArrayLit [Double] -- e.g. [1, 2, 3]
+    | MatrixLit [[Double]] -- e.g. [1, 2; 3, 4]. If the matrix is non-rectangular, it will be filled with 0s.
